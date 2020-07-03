@@ -10,58 +10,49 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtSql import *
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Dialog(object):
+    power = 0 #权限
+    username = '' #用户名
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.setWindowModality(QtCore.Qt.WindowModal)
-        Dialog.resize(1000, 1000)
+        Dialog.resize(410, 398)
         self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(Dialog)
-        self.label.setMinimumSize(QtCore.QSize(982, 265))
         font = QtGui.QFont()
-        font.setFamily("宋体")
-        font.setPointSize(18)
+        font.setFamily("Adobe Devanagari")
+        font.setPointSize(16)
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.verticalLayout.addWidget(self.label)
         self.label_2 = QtWidgets.QLabel(Dialog)
-        font = QtGui.QFont()
-        font.setFamily("宋体")
-        font.setPointSize(12)
-        self.label_2.setFont(font)
         self.label_2.setObjectName("label_2")
         self.verticalLayout.addWidget(self.label_2)
         self.user_name = QtWidgets.QLineEdit(Dialog)
-        self.user_name.setMaxLength(20)
         self.user_name.setObjectName("user_name")
         self.verticalLayout.addWidget(self.user_name)
         self.label_3 = QtWidgets.QLabel(Dialog)
-        self.label_3.setMaximumSize(QtCore.QSize(982, 287))
-        font = QtGui.QFont()
-        font.setFamily("宋体")
-        font.setPointSize(12)
-        self.label_3.setFont(font)
         self.label_3.setObjectName("label_3")
         self.verticalLayout.addWidget(self.label_3)
         self.password = QtWidgets.QLineEdit(Dialog)
-        self.password.setText("")
-        self.password.setMaxLength(20)
         self.password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.password.setObjectName("password")
         self.verticalLayout.addWidget(self.password)
-        self.login = QtWidgets.QPushButton(Dialog)
-        self.login.setObjectName("login")
-        self.verticalLayout.addWidget(self.login)
         self.cancel = QtWidgets.QPushButton(Dialog)
         self.cancel.setObjectName("cancel")
         self.verticalLayout.addWidget(self.cancel)
+        self.login = QtWidgets.QPushButton(Dialog)
+        self.login.setObjectName("login")
+        self.verticalLayout.addWidget(self.login)
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
+
         self.login.clicked.connect(self.login_check)
+        self.cancel.clicked.connect(self.window_close)
         self.user_name.returnPressed.connect(self.login_check)
         self.password.returnPressed.connect(self.login_check)
 
@@ -73,8 +64,8 @@ class Ui_Dialog(object):
         self.user_name.setPlaceholderText(_translate("Dialog", "请输入用户名"))
         self.label_3.setText(_translate("Dialog", "密码"))
         self.password.setPlaceholderText(_translate("Dialog", "请输入密码"))
-        self.login.setText(_translate("Dialog", "登录"))
         self.cancel.setText(_translate("Dialog", "取消"))
+        self.login.setText(_translate("Dialog", "登录"))
 
     def login_check(self):
         user_name = self.user_name.text()
@@ -83,10 +74,10 @@ class Ui_Dialog(object):
             print(QMessageBox.warning(self, "警告", "用户名和密码不可为空!", QMessageBox.Yes))
             return
         # 进行数据库操作
-        query = QSqlQuery()#新建sql对象
+        query = QSqlQuery()  # 新建sql对象
         query.prepare('SELECT * FROM 用户表 '
                       'WHERE 用户名  = :user_name')  # 输入SQL语句
-        query.bindValue(":user_name", user_name) # 绑定占位符和相应的功能
+        query.bindValue(":user_name", user_name)  # 绑定占位符和相应的功能
         query.exec_()
 
         if (not query.next()):
@@ -95,14 +86,19 @@ class Ui_Dialog(object):
             if (user_name == query.value(0) and password == query.value(1)):
 
                 if (query.value(2) == 1):
-                #跳转到后续管理员窗口
+                    # 跳转到后续管理员窗口
                     print(QMessageBox.information(self, "提示", "登录成功!", QMessageBox.Yes))
-                #跳转到后续用户窗口
+                    self.power = 2
+                    self.username = user_name
+                # 跳转到后续用户窗口
                 else:
                     print(QMessageBox.information(self, "提示", "登录成功!", QMessageBox.Yes))
-
-
+                    self.power = 1
+                    self.username = user_name
             else:
                 print(QMessageBox.information(self, "提示", "密码错误!", QMessageBox.Yes))
         return
-#添加后续窗口
+
+    def window_close(self):
+        self.close()
+    # 添加后续窗口
